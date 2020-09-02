@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: point
-          image: username/point:latest
+          image: 496278789073.dkr.ecr.ap-northeast-2.amazonaws.com/user10-point:latest
           ports:
             - containerPort: 8080
           readinessProbe:
