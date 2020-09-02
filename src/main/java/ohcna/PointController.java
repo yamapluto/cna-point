@@ -18,13 +18,13 @@ import java.util.Optional;
      point.setPoint(0);
      point.setStatus(postPoint.getStatus());
      point.setChangeDtm(postPoint.getChangeDtm());
-//    try {
-//     System.out.println("##### onPostPersist currentThread : " );
-//     Thread.currentThread().sleep((long) (400 + Math.random() * 320));
-//    } catch (InterruptedException e) {
-//     e.printStackTrace();
-//
-//
+    try {
+     System.out.println("##### onPostPersist currentThread : " );
+     Thread.currentThread().sleep((long) (400 + Math.random() * 320));
+    } catch (InterruptedException e) {
+     e.printStackTrace();
+
+
 
      Optional<Point> findPoint = pointRepo.findById(postPoint.getId());
      if(findPoint!= null&& findPoint.isPresent()){
