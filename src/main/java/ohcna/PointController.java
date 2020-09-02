@@ -18,12 +18,12 @@ import java.util.Optional;
      point.setPoint(0);
      point.setStatus(postPoint.getStatus());
      point.setChangeDtm(postPoint.getChangeDtm());
-    try {
+/*    try {
      System.out.println("##### onPostPersist currentThread : " );
      Thread.currentThread().sleep((long) (400 + Math.random() * 320));
     } catch (InterruptedException e) {
      e.printStackTrace();
-    }
+    }*/
 
 
 
