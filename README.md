@@ -17,7 +17,7 @@
 
 ## 기능적 요구사항
 
-1. 사용자가 회의실을 예약한다.(bookingCreate)
+1. 사용자가 room을 생성한다.(roomCreate)
 2. 사용자는 회의실 예약을 취소 할 수 있다.(bookingCancel)
 3. 회의실을 예약하면 관리자에게 승인요청이 간다.
 4. 관리자는 승인을 할 수 있다.(confirmComplete)
