@@ -661,6 +661,36 @@ hystrix:
     default:
       execution.isolation.thread.timeoutInMilliseconds: 610
 ```
+```sh
+@PostMapping("/points/create")
+   public Point created(@RequestBody Point postPoint) {
+
+     Point point = new Point();
+     point.setId(postPoint.getId());
+     point.setPoint(0);
+     point.setStatus(postPoint.getStatus());
+     point.setChangeDtm(postPoint.getChangeDtm());
+    try {
+     System.out.println("##### onPostPersist currentThread : " );
+     Thread.currentThread().sleep((long) (400 + Math.random() * 320));
+    } catch (InterruptedException e) {
+     e.printStackTrace();
+
+
+
+     Optional<Point> findPoint = pointRepo.findById(postPoint.getId());
+     if(findPoint!= null&& findPoint.isPresent()){
+      System.out.println("##### Point Exist : " +findPoint);
+
+     }else{
+      pointRepo.save(point);
+      System.out.println("##### PointRepository created : "+ point.getId()  + "<<<");
+     }
+
+
+     return point;
+  }
+```
 
 ## Self Healing 을 위한 Readiness, Liveness 적용
 
