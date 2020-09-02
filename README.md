@@ -45,9 +45,9 @@
 ![이벤트 스토밍](https://user-images.githubusercontent.com/67448171/91698324-7e5b3e80-ebad-11ea-8b16-48120bf8e92a.jpg)
 
 ## 기능적 요구사항을 커버하는지 검증
-![모델링 검증](https://user-images.githubusercontent.com/1927756/91792550-bbc4d800-ec50-11ea-9960-83a0899d51cb.png)
+![이벤트 스토밍](https://user-images.githubusercontent.com/67448171/91993962-f887f080-ed70-11ea-9f60-74bec26b94ad.JPG)
 
-1. 사용자가 회의실을 예약한다.(bookingCreate)
+1. 사용자가 회의실을 생성한다.(roomCreate)
 2. 사용자는 회의실 예약을 취소 할 수 있다.(bookingCancel)
 3. 회의실을 예약하면 관리자에게 승인요청이 간다. 
 4. 관리자는 승인을 할 수 있다.(confirmComplete) 
