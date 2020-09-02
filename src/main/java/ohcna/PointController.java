@@ -17,6 +17,7 @@ import java.util.Optional;
      point.setId(postPoint.getId());
      point.setPoint(0);
      point.setStatus(postPoint.getStatus());
+     point.setChangeDtm(postPoint.getChangeDtm());
 //    try {
 //     System.out.println("##### onPostPersist currentThread : " );
 //     Thread.currentThread().sleep((long) (400 + Math.random() * 320));
@@ -31,7 +32,7 @@ import java.util.Optional;
 
      }else{
       pointRepo.save(point);
-      System.out.println("##### PointRepository created");
+      System.out.println("##### PointRepository created : "+ point.getId()  + "<<<");
      }
 
 
@@ -54,10 +55,14 @@ import java.util.Optional;
             point.setId(postPoint.getId());
             point.setStatus("saved");
             point.setPoint(score.get().getPoint()+ratedPoint);
+            String chgDtm = "20200902"+(100000 + Math.random() * 2);
+            point.setChangeDtm(chgDtm);
             pointRepo.save(point);
             System.out.println("##### PointRepository saved");
 
 
+        }else{
+            System.out.println("##### PointRepository saved >>>> "+postPoint.getId()+"<<<< NOT EXISTS");
         }
         return point;
     }
@@ -65,7 +70,7 @@ import java.util.Optional;
     @PostMapping("/points/cancel")
     public Point cancelled(@RequestBody Point postPoint) {
 
-        Point point = new Point();
+        Point point = postPoint;
 
 
         Optional<Point> score = pointRepo.findById(postPoint.getId());
@@ -75,13 +80,13 @@ import java.util.Optional;
             point.setId(score.get().getId());
             point.setStatus("cancelled");
             pointRepo.save(point);
-            System.out.println("##### PointRepository cancelled");
+            System.out.println("##### PointRepository cancelled >> "+point.getId());
 
         }
 
         return point;
     }
-
+/*
     @RequestMapping(value = "/points/select/{id}",
             method = RequestMethod.POST,
             produces = "application/json;charset=UTF-8")
@@ -98,5 +103,5 @@ import java.util.Optional;
         System.out.println("##### PointRepository Status"+printScore.getStatus());
 
     }
-
+*/
  }

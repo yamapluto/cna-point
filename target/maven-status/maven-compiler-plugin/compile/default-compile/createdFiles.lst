@@ -1,0 +1,12 @@
+ohcna\PolicyHandler.class
+ohcna\AbstractEvent$1.class
+ohcna\PointSaved.class
+ohcna\PointCreated.class
+ohcna\RoomDeleted.class
+ohcna\PointApplication.class
+ohcna\PointController.class
+ohcna\PointRepository.class
+ohcna\config\kafka\KafkaProcessor.class
+ohcna\AbstractEvent.class
+ohcna\Point.class
+ohcna\PointDeleted.class

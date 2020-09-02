@@ -23,33 +23,53 @@ public class Point {
     public void onPostPersist(){
 
         if(this.getStatus().equals("created")){
-            System.out.println("##### Point onPostUpdate created ");
+            System.out.println("##### Point onPostPersist created ");
             PointCreated pointCreated = new PointCreated();
             BeanUtils.copyProperties(this, pointCreated);
             pointCreated.publishAfterCommit();
 
+        }else if(this.getStatus().equals("cancelled")){
+            System.out.println("##### cancelled Point onPostPersist pointDeleted ");
+            PointDeleted pointDeleted = new PointDeleted();
+            BeanUtils.copyProperties(this, pointDeleted);
+            pointDeleted.publishAfterCommit();
         }
     }
 
     @PostUpdate
     public void onPostUpdate(){
-        if(this.getStatus().equals("created")){
+        /*if(this.getStatus().equals("created")){
             System.out.println("##### Point onPostUpdate created ");
             PointCreated pointCreated = new PointCreated();
             BeanUtils.copyProperties(this, pointCreated);
             pointCreated.publishAfterCommit();
-        }else if(this.getStatus().equals("saved")){
+        }else*/
+
+            if(this.getStatus().equals("saved")){
             System.out.println("##### Point onPostUpdate saved ");
             PointSaved pointSaved = new PointSaved();
             BeanUtils.copyProperties(this, pointSaved);
             pointSaved.publishAfterCommit();
-        }
+        }else
+            if(this.getStatus().equals("cancelled")){
+                System.out.println("##### cancelled Point onPostUpdate pointDeleted ");
+                PointDeleted pointDeleted = new PointDeleted();
+                BeanUtils.copyProperties(this, pointDeleted);
+                pointDeleted.publishAfterCommit();
+            }
+            else{
+                System.out.println("##### Point onPostUpdate pointDeleted ");
+                PointDeleted pointDeleted = new PointDeleted();
+                BeanUtils.copyProperties(this, pointDeleted);
+                pointDeleted.publishAfterCommit();
+            }
 
 
     }
 
     @PostRemove
     public void onPostRemove(){
+        System.out.println("##### Point onPostRemove pointDeleted ");
         PointDeleted pointDeleted = new PointDeleted();
         BeanUtils.copyProperties(this, pointDeleted);
         pointDeleted.publishAfterCommit();

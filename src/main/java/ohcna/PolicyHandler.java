@@ -31,9 +31,15 @@ public class PolicyHandler{
 
         if(roomDeleted.isMe()){
             System.out.println("##### listener PointDelete : " + roomDeleted.toJson());
-            Point point = new Point();
+            //Point point = new Point();
 
             List<Point> pointList = pointRepo.findByIdOrderByChangeDtm(roomDeleted.getId());
+            if(!pointList.isEmpty()){
+
+                pc.cancelled(pointList.get(0));
+                System.out.println("PointDelete call cancelled:"+pointList.get(0).getId());
+
+            }
         }
     }
 
