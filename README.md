@@ -623,26 +623,43 @@ kubectl scale deploy confirm --replicas=2
 
 ### confirm 에 Circuit Break 적용
 ```sh
-kubectl apply -f - <<EOF
-apiVersion: networking.istio.io/v1alpha3
-kind: DestinationRule
-metadata:
-  name: confirm
-spec:
-  host: confirm
-  trafficPolicy:
-    connectionPool:
-      tcp:
-        maxConnections: 2
-      http:
-        http1MaxPendingRequests: 1
-        maxRequestsPerConnection: 1
-    outlierDetection:
-      consecutiveErrors: 5
-      interval: 1s
-      baseEjectionTime: 30s
-      maxEjectionPercent: 100
-EOF
+spring:
+  profiles: docker
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: my-kafka.kafka.svc.cluster.local:9092
+        streams:
+          binder:
+            configuration:
+              default:
+                key:
+                  serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+                value:
+                  serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+      bindings:
+        event-in:
+          group: room
+          destination: ohcna
+          contentType: application/json
+        event-out:
+          destination: ohcna
+          contentType: application/json
+
+api:
+  url:
+    point: http://point:8080
+
+feign:
+  hystrix:
+    enabled: true
+
+hystrix:
+  command:
+    # 전역설정
+    default:
+      execution.isolation.thread.timeoutInMilliseconds: 610
 ```
 
 ## Self Healing 을 위한 Readiness, Liveness 적용
