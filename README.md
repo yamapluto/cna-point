@@ -507,11 +507,14 @@ cache:
  ```
  ![istio적용 결과](https://user-images.githubusercontent.com/1927756/91917876-2ed75880-ecfc-11ea-85f3-3e3dc6759df8.png)
 
-### Scaleout(confirm) 적용
-```sh
-kubectl scale deploy confirm --replicas=2
+### AutoScale(room) 적용
+```yml
+          resources:
+            limits:
+              cpu: 500m
+            requests:
+              cpu: 200m
 ```
-![scaleout 적용](https://user-images.githubusercontent.com/1927756/91918221-4d8a1f00-ecfd-11ea-9cad-92a35a08edd2.png)
 
 ### confirm 에 Circuit Break 적용
 ```sh
