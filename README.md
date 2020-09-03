@@ -169,7 +169,7 @@ public interface PointRepository extends PagingAndSortingRepository<Point, Long>
 }
 ```
 
-- 적용 후 REST API 의 테스트
+## 적용 후  테스트
 * [room] room 생성
 ```
 ❯ http POST http://aa96a9baa39964102b0cbd52f5562218-266835466.ap-northeast-2.elb.amazonaws.com:8080/rooms name="red" floor="5"  
