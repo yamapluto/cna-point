@@ -540,9 +540,9 @@ cache:
 ```
 kubectl autoscale deploy room --min=1 --max=10 --cpu-percent=20
 ```
-![autoscale_setting_cpu](https://user-images.githubusercontent.com/67448171/92063774-f5bfe680-edd6-11ea-8caa-ac0eca48049a.JPG)
-
+![CB_100](https://user-images.githubusercontent.com/67448171/92060992-2ea88d00-edd0-11ea-92f4-53828e9bf2f0.JPG)
 ![autoscale_watch_pod](https://user-images.githubusercontent.com/67448171/92063796-ffe1e500-edd6-11ea-8a3d-10711b28033e.JPG)
+![autoscale_setting_cpu](https://user-images.githubusercontent.com/67448171/92063774-f5bfe680-edd6-11ea-8caa-ac0eca48049a.JPG)
 
 ### confirm 에 Circuit Break 적용
 ```sh
