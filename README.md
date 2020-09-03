@@ -105,9 +105,7 @@ public class Room {
         BeanUtils.copyProperties(this, roomCreated);
         roomCreated.publishAfterCommit();
 
-        //Following code causes dependency to external APIs
-        // it is NOT A GOOD PRACTICE. instead, Event-Policy mapping is recommended.
-        String chgDtm = "20200902"+(100000 + Math.random() * 1);
+        //Following code causes dependency to external APIs 
         ohcna.external.Point point = new ohcna.external.Point();
         // mappings goes here
         
