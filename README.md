@@ -537,6 +537,12 @@ cache:
             requests:
               cpu: 200m
 ```
+```
+kubectl autoscale deploy room --min=1 --max=10 --cpu-percent=20
+```
+![autoscale_setting_cpu](https://user-images.githubusercontent.com/67448171/92063774-f5bfe680-edd6-11ea-8caa-ac0eca48049a.JPG)
+
+![autoscale_watch_pod](https://user-images.githubusercontent.com/67448171/92063796-ffe1e500-edd6-11ea-8a3d-10711b28033e.JPG)
 
 ### confirm 에 Circuit Break 적용
 ```sh
