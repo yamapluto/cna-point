@@ -13,65 +13,32 @@
 4. https://github.com/yamapluto/cna-gateway
 
 
-# 서비스 시나리오
+# 서비스 시나리오 및 분석/설계
+![모델링 검증](https://user-images.githubusercontent.com/1927756/91792550-bbc4d800-ec50-11ea-9960-83a0899d51cb.png)
+
+![이벤트 스토밍](https://user-images.githubusercontent.com/67448171/91993962-f887f080-ed70-11ea-9f60-74bec26b94ad.JPG)
 
 ## 기능적 요구사항
 
 1. 사용자가 room을 생성한다.(roomCreate)
-2. 사용자는 회의실 예약을 취소 할 수 있다.(bookingCancel)
-3. 회의실을 예약하면 관리자에게 승인요청이 간다.
-4. 관리자는 승인을 할 수 있다.(confirmComplete)
-5. 관리자는 승인 거절 할 수 있다.(confirmDeny)
-6. 관리자가 승인 거절하면 예약취소한다.(bookingCancel)
-7. 예약취소하면 예약정보는 삭제한다. 
-8. 에약/승인 상태가 바뀔때마다 이메일로 알림을 준다.
-9. 예약이 취소(bookingCancelled) 되면 컴펌 내역이 삭제 된다. (confirmDelete)
+2. 사용자는 room에 point를 줄 수 있다.(pointSave)
+3. 사용자는 room을 삭제 할 수 있다. (roomDelete)
 
 ## 비기능적 요구사항
 1. 트랜잭션
-  - 승인거절(confirmDenied) 되었을 경우 예약을 취소한다.(Sync 호출)
+  - room이 생성(roomCreated) 되었을 경우 room에 Point를 생성한다(Sync 호출)
   
 2. 장애격리
-  - 알림기능이 취소되더라도 예약과 승인 기능은 가능하다.
+  - Point service가 장애날 경우 point는 줄 수 없더라도 room 삭제는 가능함
   - Circuit Breaker, fallback
   
 3. 성능
-  - 예약/승인 상태는 예약목록 시스템에서 확인 가능하다.(CQRS)
+  - room에 부여된 point 목록은 시스템에서 확인 가능하다.(CQRS)
   - 예약/승인 상태가 변경될때 이메일로 알림을 줄 수 있다.(Event Driven)
-  
-# 분석 설계
-## 이벤트 도출
 
-![이벤트 스토밍](https://user-images.githubusercontent.com/67448171/91698324-7e5b3e80-ebad-11ea-8b16-48120bf8e92a.jpg)
 
-## 기능적 요구사항을 커버하는지 검증
-![이벤트 스토밍](https://user-images.githubusercontent.com/67448171/91993962-f887f080-ed70-11ea-9f60-74bec26b94ad.JPG)
-
-1. 사용자가 회의실을 생성한다.(roomCreate)
-2. 사용자는 회의실 예약을 취소 할 수 있다.(bookingCancel)
-3. 회의실을 예약하면 관리자에게 승인요청이 간다. 
-4. 관리자는 승인을 할 수 있다.(confirmComplete) 
-5. 관리자는 승인 거절 할 수 있다.(confirmDeny) 
-6. 관리자가 승인 거절하면 예약취소한다.(bookingCancel) 
-7. 예약취소하면 예약정보는 삭제하고 confirm 대상에서 삭제한다.(confirmDelete)
-8. 에약/승인 상태가 바뀔때마다 이메일로 알림을 준다.  
-9. 예약이 취소(bookingCancelled) 되면 컴펌 내역이 삭제 된다. (confirmDelete)  --> ```Saga 적용```
-10. 예약 및 승인 현황을 조회할 수 있다.(bookingList)
-
-## 비 기능적 요구사항을 커버하는지 검증
-1. 트랜잭션
-  - 승인거절(confirmDenied) 되었을 경우 예약을 취소한다.(Sync 호출)
-  
-2. 장애격리
-  - 알림기능이 취소되더라도 예약과 승인 기능은 가능하다.
-  - Circuit Breaker, fallback
-  
-3. 성능
-  - 예약/승인 상태는 예약목록 시스템에서 확인 가능하다.(CQRS)
-  - 예약/승인 상태가 변경될때 이메일로 알림을 줄 수 있다.(Event Driven)
-  
 ## 헥사고날 아키텍처 다이어그램 도출  
-![핵사고날](https://user-images.githubusercontent.com/67448171/91702775-2f64d780-ebb4-11ea-9a18-5ce245db3691.jpg)
+![핵사고날](https://user-images.githubusercontent.com/67448171/92055473-4f211900-edc9-11ea-9f33-cf0b9ff03fa0.jpg)
 
 - Chris Richardson, MSA Patterns 참고하여 Inbound adaptor와 Outbound adaptor를 구분함
 - 호출관계에서 PubSub 과 Req/Resp 를 구분함
@@ -97,33 +64,75 @@ mvn spring-boot:run
 
 cd bookinglist
 mvn spring-boot:run
+
+cd room
+mvn spring-boot:run  
+
+cd point
+mvn spring-boot:run
+
+cd pointlist
+mvn spring-boot:run
+
+
 ```
 
 ## DDD 의 적용
 
 - 각 서비스내에 도출된 핵심 Aggregate Root 객체를 Entity 로 선언. 
-  ```booking, confirm, notification```
+  ```booking, confirm, notification, room, point, pointlist```
 
-```java
-package ohcna;
+```package ohcna;
 
 import javax.persistence.*;
 import org.springframework.beans.BeanUtils;
+import java.util.List;
 
 @Entity
-@Table(name="Booking_table")
-public class Booking {
+@Table(name="Room_table")
+public class Room {
 
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
-    private Long roomId;
-    private String useStartDtm;
-    private String useEndDtm;
-    private String bookingUserId;
-    private String status;
+    private String name;
+    private String floor;
 
-...
+    @PostPersist
+    public void onPostPersist(){
+
+        RoomCreated roomCreated = new RoomCreated();
+        BeanUtils.copyProperties(this, roomCreated);
+        roomCreated.publishAfterCommit();
+
+        //Following code causes dependency to external APIs
+        // it is NOT A GOOD PRACTICE. instead, Event-Policy mapping is recommended.
+        String chgDtm = "20200902"+(100000 + Math.random() * 1);
+        ohcna.external.Point point = new ohcna.external.Point();
+        // mappings goes here
+        
+        point.setId(roomCreated.getId());
+        point.setStatus("created");
+        point.setChangeDtm(chgDtm);
+        point.setPoint(0);
+        RoomApplication.applicationContext.getBean(ohcna.external.PointService.class)
+            .pointCreate(point);
+    }
+
+    @PostUpdate
+    public void onPostUpdate(){
+        RoomChangeed roomChangeed = new RoomChangeed();
+        BeanUtils.copyProperties(this, roomChangeed);
+        roomChangeed.publishAfterCommit();
+    }
+
+    @PostRemove
+    public void onPostRemove(){
+        System.out.println("##### point onPostRemove <<<<<<<");
+        RoomDeleted roomDeleted = new RoomDeleted();
+        BeanUtils.copyProperties(this, roomDeleted);
+        roomDeleted.publishAfterCommit();
+    }
 
     public Long getId() {
         return id;
@@ -132,179 +141,177 @@ public class Booking {
     public void setId(Long id) {
         this.id = id;
     }
-    public Long getRoomId() {
-        return roomId;
+    public String getName() {
+        return name;
     }
 
-    public void setRoomId(Long roomId) {
-        this.roomId = roomId;
+    public void setName(String name) {
+        this.name = name;
     }
-    public String getUseStartDtm() {
-        return useStartDtm;
-    }
-
-    public void setUseStartDtm(String useStartDtm) {
-        this.useStartDtm = useStartDtm;
-    }
-    public String getUseEndDtm() {
-        return useEndDtm;
+    public String getFloor() {
+        return floor;
     }
 
-    public void setUseEndDtm(String useEndDtm) {
-        this.useEndDtm = useEndDtm;
-    }
-    public String getBookingUserId() {
-        return bookingUserId;
-    }
-
-    public void setBookingUserId(String bookingUserId) {
-        this.bookingUserId = bookingUserId;
-    }
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
+    public void setFloor(String floor) {
+        this.floor = floor;
     }
 }
+
 ```
 
 - Entity Pattern 과 Repository Pattern 을 적용하여 JPA 를 통하여 다양한 데이터소스 유형 (RDB or NoSQL) 에 대한 별도의 처리가 없도록 데이터 접근 어댑터를 자동 생성하기 위하여 Spring Data REST 의 RestRepository 를 적용하였다
 
 ```java
-package ohcna;
-import org.springframework.data.repository.PagingAndSortingRepository;
-public interface BookingRepository extends PagingAndSortingRepository<Booking, Long>{
+public interface PointRepository extends PagingAndSortingRepository<Point, Long>{
+    Optional<Point>  findById(Long id);
+    List<Point> findByIdOrderByChangeDtm(Long id);
+
 }
 ```
 
 - 적용 후 REST API 의 테스트
-* [booking] 회의실 예약처리
+* [room] room 생성
 ```
-❯ http  POST http://a87089e89ff2c465cb235f13b552bd86-1362531007.ap-northeast-2.elb.amazonaws.com:8080/bookings roomId="101" useStartDtm="20200831183000" useEndDtm="20200831193000" bookingUserId="06675"
+❯ http POST http://aa96a9baa39964102b0cbd52f5562218-266835466.ap-northeast-2.elb.amazonaws.com:8080/rooms name="red" floor="5"  
 HTTP/1.1 201 Created
 Content-Type: application/json;charset=UTF-8
-Date: Tue, 01 Sep 2020 10:47:06 GMT
-Location: http://booking:8080/bookings/7
+Date: Thu, 03 Sep 2020 00:45:21 GMT
+Location: http://room:8080/rooms/13326
 transfer-encoding: chunked
 
 {
     "_links": {
-        "booking": {
-            "href": "http://booking:8080/bookings/7"
+        "room": {
+            "href": "http://room:8080/rooms/13326"
         },
         "self": {
-            "href": "http://booking:8080/bookings/7"
+            "href": "http://room:8080/rooms/13326"
         }
     },
-    "bookingUserId": "06675",
-    "roomId": 101,
-    "useEndDtm": "20200831193000",
-    "useStartDtm": "20200831183000"
+    "floor": "5",
+    "name": "red"
 }
 
+{"eventType":"PointCreated","timestamp":"20200903005407","id":13236,"point":0,"status":"created","changeDtm":"20200902100000.46602695993","me":true}
+{"eventType":"RoomCreated","timestamp":"20200903005407","id":13327,"name":"red","floor":"5","me":true}
 ```
-* [booking] 회의실 예약정보 수정
+```
+>http GET http://aa96a9baa39964102b0cbd52f5562218-266835466.ap-northeast-2.elb.amazonaws.com:8080/points/1
+HTTP/1.1 200 OK
+Content-Type: application/hal+json;charset=UTF-8
+Date: Thu, 03 Sep 2020 00:49:27 GMT
+transfer-encoding: chunked
+
+{
+    "_links": {
+        "point": {
+            "href": "http://point:8080/points/1"
+        },
+        "self": {
+            "href": "http://point:8080/points/1"
+        }
+    },
+    "changeDtm": "20200902100000.01320973277",
+    "point": 0,
+    "status": "created"
+}
+
+>http GET http://aa96a9baa39964102b0cbd52f5562218-266835466.ap-northeast-2.elb.amazonaws.com:8080/pointLists/1
+HTTP/1.1 200 OK
+Content-Type: application/hal+json;charset=UTF-8
+Date: Thu, 03 Sep 2020 01:24:32 GMT
+transfer-encoding: chunked
+
+{
+    "_links": {
+        "pointList": {
+            "href": "http://pointList:8080/pointLists/1"
+        },
+        "self": {
+            "href": "http://pointList:8080/pointLists/1"
+        }
+    },
+    "point": 0,
+    "roomFloor": "4",
+    "roomName": "black"
+}
+
+
+```
+* [point] room에 점수 부여
 ``` 
-❯ http PATCH http://a87089e89ff2c465cb235f13b552bd86-1362531007.ap-northeast-2.elb.amazonaws.com:8080/bookings/7 bookingUserId="99999"
+❯ http POST http://aa96a9baa39964102b0cbd52f5562218-266835466.ap-northeast-2.elb.amazonaws.com:8080/points/save id=1 point=3
+HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
+Date: Thu, 03 Sep 2020 00:50:52 GMT
+transfer-encoding: chunked
+
+{
+    "changeDtm": "20200902100001.09237449037",
+    "id": 1,
+    "point": 3,
+    "status": "saved"
+}
+
+{"eventType":"PointSaved","timestamp":"20200903005457","id":1,"point":6,"status":"saved","changeDtm":"20200902100001.89862713129","me":true}
 ```
 
-* [booking] 회의실 예약정보 삭제
+* [room] room정보 삭제
 ```
-❯ http DELETE http://a87089e89ff2c465cb235f13b552bd86-1362531007.ap-northeast-2.elb.amazonaws.com:8080/bookings/7
+❯ http DELETE http://aa96a9baa39964102b0cbd52f5562218-266835466.ap-northeast-2.elb.amazonaws.com:8080/rooms/1 
+HTTP/1.1 204 No Content
+Date: Thu, 03 Sep 2020 00:52:32 GMT
+
+{"eventType":"RoomDeleted","timestamp":"20200903005232","id":1,"name":"brown","floor":"100","me":true}
+{"eventType":"PointDeleted","timestamp":"20200903005232","id":1,"point":3,"status":"cancelled","changeDtm":"20200902100001.09237449037","me":true}
 ```
 
 ## 동기식 호출 과 비동기식 
 
-분석단계에서의 조건 중 하나로 컨펌 반려(confirmDeny)->회의실 예약 취소(bookingCancel) 간의 호출은 동기식 일관성을 유지하는 트랜잭션으로 처리하기로 하였다. 호출 프로토콜은 이미 앞서 Rest Repository 에 의해 노출되어있는 REST 서비스를 FeignClient 를 이용하여 호출하도록 한다. 
+분석단계에서의 조건 중 하나로 room생성(roomCreate)->point 생성(pointCreate) 간의 호출은 동기식 일관성을 유지하는 트랜잭션으로 처리하기로 하였다. 호출 프로토콜은 이미 앞서 Rest Repository 에 의해 노출되어있는 REST 서비스를 FeignClient 를 이용하여 호출하도록 한다. 
 
 ### 동기식 호출(FeignClient 사용)
 ```java
-// cna-confirm/../externnal/BookingService.java
+// cna-room/../externnal/PointService.java
 
 // feign client 로 booking method 호출
-// URL 은 application.yml 정의함(api.url.booking)
-//@FeignClient(name="booking", url="http://booking:8080")
-@FeignClient(name="booking", url="${api.url.booking}")
-public interface BookingService {
+@FeignClient(name="point", url="${api.url.point}")
+public interface PointService {
 
-    // Booking Cancel 을 위한 삭제 mapping
-    @DeleteMapping(value = "/bookings/{id}")
-    public void bookingCancel(@PathVariable long id);
+    @RequestMapping(method= RequestMethod.POST, path="/points/create")
+    public void pointCreate(@RequestBody Point point);
 }
 
-
-
-
-
-
-// cna-confirm/../Confirm.java
-    @PostUpdate
-    public void onPostUpdate(){
-
-        // 이벤트 인스턴스 생성
-        // BookingChanged bookingChanged = new BookingChanged();
-
-        // Confirmed
-        if(this.getStatus().equals("CONFIRMED"))
-        {
-            ConfirmCompleted confirmCompleted = new ConfirmCompleted();
-            BeanUtils.copyProperties(this, confirmCompleted);
-             // 속성값 할당
-            confirmCompleted.publishAfterCommit();
-        }
-        
-        // Denied
-        else if(this.getStatus().equals("DENIED"))
-        {
-            // 이벤트 인스턴스 생성
-            ConfirmDenied confirmDenied = new ConfirmDenied();
-
-            // 속성값 할당
-            BeanUtils.copyProperties(this, confirmDenied);
-            confirmDenied.publishAfterCommit();
-
-            // mappings goes here
-            ConfirmApplication.applicationContext.getBean(ohcna.external.BookingService.class)
-                .bookingCancel(this.getBookingId());
-        }
-
-        // Exception Error
-        else{
-            System.out.println("Error");
-        }
-    }
 ```
 ### 비동기식 호출(Kafka Message 사용)
 * Publish
 ```java
-// cna-booking/../Booking.java
-@PostPersist
-public void onPostPersist(){
-    BookingCreated bookingCreated = new BookingCreated();
-    BeanUtils.copyProperties(this, bookingCreated);
-
-    // AbstractEvent.java 의 publishAfterCommit --> publish --> KafkaChannel(outputChannel).send
-    bookingCreated.publishAfterCommit();
-}
+// cna-room/../room.java
+    @PostRemove
+    public void onPostRemove(){
+        System.out.println("##### point onPostRemove <<<<<<<");
+        RoomDeleted roomDeleted = new RoomDeleted();
+        BeanUtils.copyProperties(this, roomDeleted);
+        roomDeleted.publishAfterCommit();
+    }
 ```
 * Subscribe
 ```java
-// cna-notification/../PolicyHandler.java
+// cna-point/../PolicyHandler.java
 
     @StreamListener(KafkaProcessor.INPUT)
-    public void wheneverBookingCreated_SendNotification(@Payload BookingCreated bookingCreated){
+    public void wheneverRoomDeleted_PointDelete(@Payload RoomDeleted roomDeleted){
 
-        if(bookingCreated.isMe()){
-            // 노티 내용 SET
-            Notification notification = new Notification();
-            notification.setUserId(bookingCreated.getBookingUserId());
-            notification.setContents("conference room[" + bookingCreated.getRoomId() + "] reservation is complete");
-            String nowDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-            notification.setSendDtm(nowDate);
-            notificationRepository.save(notification);
-            System.out.println("##### listener SendNotification : " + bookingCreated.toJson());
+        if(roomDeleted.isMe()){
+            System.out.println("##### listener PointDelete : " + roomDeleted.toJson());
+            //Point point = new Point();
+
+            List<Point> pointList = pointRepo.findByIdOrderByChangeDtm(roomDeleted.getId());
+            if(!pointList.isEmpty()){
+
+                pc.cancelled(pointList.get(0));
+                System.out.println("PointDelete call cancelled:"+pointList.get(0).getId());
+            }
         }
     }
 ```
@@ -312,8 +319,6 @@ public void onPostPersist(){
 ## Gateway 적용
 각 서비스는 ClusterIP 로 선언하여 외부로 노출되지 않고, Gateway 서비스 만을 LoadBalancer 타입으로 선언하여 Gateway 서비스를 통해서만 접근할 수 있다.
 ```yml
-## gateway/../resources/application.yml
-
 spring:
   profiles: docker
   cloud:
@@ -322,7 +327,7 @@ spring:
         - id: booking
           uri: http://booking:8080
           predicates:
-            - Path=/bookings/**
+            - Path=/bookings/** 
         - id: confirm
           uri: http://confirm:8080
           predicates:
@@ -331,10 +336,36 @@ spring:
           uri: http://notification:8080
           predicates:
             - Path=/notifications/** 
-        - id: bookinglist
-          uri: http://bookingList:8080
+        - id: user
+          uri: http://user:8080
           predicates:
-            - Path=/bookingLists/**
+            - Path=/users/**, /userLists/**
+        - id: room
+          uri: http://room:8080
+          predicates:
+            - Path=/rooms/** 
+        - id: point
+          uri: http://point:8080
+          predicates:
+            - Path=/points/** 
+        - id: pointList
+          uri: http://pointList:8080
+          predicates:
+            - Path= /pointLists/**
+        - id: bookingList
+          uri: http://bookingView:8080
+          predicates:
+            - Path= /bookingLists/**
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "*"
+            allowedMethods:
+              - "*"
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
 ```
 
 ```yml
@@ -356,146 +387,7 @@ spec:
     LoadBalancer
 ```
 
-## 전체 시나리오 테스트
-1. 회의실 예약(bookingCreate)
-```sh
-http POST http://ae0865d6fab6f4939b945502eec3b95f-35623661.ap-northeast-2.elb.amazonaws.com:8080/bookings roomId="556677" bookingUserId="45678" useStartDtm="202009021330" useEndDtm="202009021430"
-```
-```json
-{
-    "_links": {
-        "booking": {
-            "href": "http://booking:8080/bookings/3"
-        },
-        "self": {
-            "href": "http://booking:8080/bookings/3"
-        }
-    },
-    "bookingUserId": "45678",
-    "roomId": 556677,
-    "useEndDtm": "202009021430",
-    "useStartDtm": "202009021330"
-}
-```
 
-2. 승인내역 등록 확인(confirmRequest)
-```sh
-http GET  http://ae0865d6fab6f4939b945502eec3b95f-35623661.ap-northeast-2.elb.amazonaws.com:8080/confirms/2
-```
-```json
-{
-    "_links": {
-        "confirm": {
-            "href": "http://confirm:8080/confirms/2"
-        },
-        "self": {
-            "href": "http://confirm:8080/confirms/2"
-        }
-    },
-    "bookingId": 3,
-    "confirmDtm": null,
-    "status": "BOOKED",
-    "userId": "45678"
-}
-```
-
-3. 알림(notification)내역 확인
-```sh
-http GET  http://ae0865d6fab6f4939b945502eec3b95f-35623661.ap-northeast-2.elb.amazonaws.com:8080/notifications/5
-```
-```json
-{
-    "_links": {
-        "notification": {
-            "href": "http://notification:8080/notifications/5"
-        },
-        "self": {
-            "href": "http://notification:8080/notifications/5"
-        }
-    },
-    "contents": "conference room[556677] reservation is complete",
-    "sendDtm": "2020-09-02 02:03:56",
-    "userId": "45678"
-}
-```
-
-4. CQRS(bookingList) 확인
-```sh
-http GET  http://ae0865d6fab6f4939b945502eec3b95f-35623661.ap-northeast-2.elb.amazonaws.com:8080/bookingLists/7
-```
-```json
-{
-    "_links": {
-        "bookingList": {
-            "href": "http://bookingList:8080/bookingLists/7"
-        },
-        "self": {
-            "href": "http://bookingList:8080/bookingLists/7"
-        }
-    },
-    "bookingDtm": "2020-09-02 02:03:56",
-    "bookingId": 3,
-    "bookingUserId": "45678",
-    "confirmDtm": null,
-    "confirmId": null,
-    "confirmStatus": null,
-    "confirmUserId": null,
-    "roomId": 556677,
-    "useEndDtm": "202009021430",
-    "useStartDtm": "202009021330"
-}
-```
-
-5. 승인거절(confirmDenied)
-```sh
-http  PATCH http://ae0865d6fab6f4939b945502eec3b95f-35623661.ap-northeast-2.elb.amazonaws.com:8080/confirms/2 status="DENIED"
-```
-```json
-{
-    "_links": {
-        "confirm": {
-            "href": "http://confirm:8080/confirms/2"
-        },
-        "self": {
-            "href": "http://confirm:8080/confirms/2"
-        }
-    },
-    "bookingId": 3,
-    "confirmDtm": null,
-    "status": "DENIED",
-    "userId": "45678"
-}
-```
-
-6. 승인거절 Notification
-```sh
-http GET  http://ae0865d6fab6f4939b945502eec3b95f-35623661.ap-northeast-2.elb.amazonaws.com:8080/notifications/6
-```
-```json
-{
-    "_links": {
-        "notification": {
-            "href": "http://notification:8080/notifications/6"
-        },
-        "self": {
-            "href": "http://notification:8080/notifications/6"
-        }
-    },
-    "contents": "reservation has been canceled",
-    "sendDtm": "2020-09-02 02:10:23",
-    "userId": "45678"
-}
-```
-
-7. 승인거절시 bookingCancelled 호출 --> booking 내역 삭제
-```sh
-http GET  http://ae0865d6fab6f4939b945502eec3b95f-35623661.ap-northeast-2.elb.amazonaws.com:8080/bookings/3
-```
-```json
-HTTP/1.1 404 Not Found
-Date: Wed, 02 Sep 2020 02:12:16 GMT
-content-length: 0
-```
 
 # 운영
 
@@ -601,17 +493,17 @@ cache:
 ## CodeBuild 를 통한 CI/CD 동작 결과
 
 아래 이미지는 aws pipeline에 각각의 서비스들을 올려, 코드가 업데이트 될때마다 자동으로 빌드/배포 하도록 하였다.
-![CodeBuild 결과](https://user-images.githubusercontent.com/1927756/91916332-da31de80-ecf7-11ea-85eb-a2fe6e4ce82b.png)
-![K8S 결과](https://user-images.githubusercontent.com/1927756/91916387-fafa3400-ecf7-11ea-8263-7351976b50cc.png)
+![CodeBuild](https://user-images.githubusercontent.com/67448171/92060413-a5dd2180-edce-11ea-86d8-7da351bc24ce.JPG)
+
 
 ## Service Mesh
 ###  istio 를 통해 booking, confirm service 에 적용
  ```sh
- kubectl get deploy booking -o yaml > booking_deploy.yaml
- kubectl apply -f <(istioctl kube-inject -f booking_deploy.yaml)
+ kubectl get deploy room -o yaml > room_deploy.yaml
+ kubectl apply -f <(istioctl kube-inject -f room_deploy.yaml)
 
- kubectl get deploy confirm -o yaml > confirm_deploy.yaml
- kubectl apply -f <(istioctl kube-inject -f confirm_deploy.yaml)
+ kubectl get deploy point -o yaml > point_deploy.yaml
+ kubectl apply -f <(istioctl kube-inject -f point_deploy.yaml)
  ```
  ![istio적용 결과](https://user-images.githubusercontent.com/1927756/91917876-2ed75880-ecfc-11ea-85f3-3e3dc6759df8.png)
 
@@ -691,11 +583,15 @@ hystrix:
      return point;
   }
 ```
+![CB_100](https://user-images.githubusercontent.com/67448171/92060992-2ea88d00-edd0-11ea-92f4-53828e9bf2f0.JPG)
+![CB_100_kafka](https://user-images.githubusercontent.com/67448171/92061015-38ca8b80-edd0-11ea-8d7b-10bf95009b97.JPG)
+![CB_64](https://user-images.githubusercontent.com/67448171/92061034-44b64d80-edd0-11ea-9eb7-b98146e9bc79.JPG)
+
 
 ## Self Healing 을 위한 Readiness, Liveness 적용
 
 ```yaml
-## cna-booking/../deplyment.yml
+## cna-room/../deplyment.yml
 readinessProbe:
     httpGet:
         path: '/actuator/health'
