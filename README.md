@@ -638,3 +638,25 @@ livenessProbe:
     periodSeconds: 5
     failureThreshold: 5
 ```
+
+## 무정지 재배포
+
+Autoscaler설정과 Readiness 제거를 한뒤, 부하를 넣었다. 
+
+이후 Readiness를 제거한 코드를 업데이트하여 새 버전으로 배포를 시작했다.
+
+그 결과는 아래는 같다.
+
+![image](https://user-images.githubusercontent.com/18453570/80060602-ec418a80-8569-11ea-87ea-34004c1ce5d3.png)
+![image](https://user-images.githubusercontent.com/18453570/80060605-eea3e480-8569-11ea-9825-a375530f1953.png)
+
+
+다시 Readiness 설정을 넣고 부하를 넣었다.
+
+그리고 새버전으로 배포한 뒤 그 결과는 아래와 같다.
+
+
+![image](https://user-images.githubusercontent.com/18453570/80060772-565a2f80-856a-11ea-9ee3-5d682099b899.png)
+![image](https://user-images.githubusercontent.com/18453570/80060776-5823f300-856a-11ea-89a9-7c945ea05278.png)
+
+배포기간 동안 Availability 가 변화없기 때문에 무정지 재배포가 성공한 것으로 확인됨.
