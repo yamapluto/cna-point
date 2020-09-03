@@ -30,7 +30,7 @@
   
 2. 장애격리
   - Point service가 장애날 경우 point는 줄 수 없더라도 room 삭제는 가능함
-  - Circuit Breaker, fallback
+  - Circuit Breaker
   
 3. 성능
   - room에 부여된 point 목록은 시스템에서 확인 가능하다.(CQRS)
