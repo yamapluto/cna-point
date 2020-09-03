@@ -190,7 +190,7 @@ transfer-encoding: chunked
     "name": "red"
 }
 
-{"eventType":"PointCreated","timestamp":"20200903005407","id":13236,"point":0,"status":"created","changeDtm":"20200902100000.46602695993","me":true}
+{"eventType":"PointCreated","timestamp":"20200903005407","id":13236,"point":0,"status":"created","changeDtm":"20200903100000.46602695993","me":true}
 {"eventType":"RoomCreated","timestamp":"20200903005407","id":13327,"name":"red","floor":"5","me":true}
 ```
 ```
@@ -209,7 +209,7 @@ transfer-encoding: chunked
             "href": "http://point:8080/points/1"
         }
     },
-    "changeDtm": "20200902100000.01320973277",
+    "changeDtm": "20200903100000.01320973277",
     "point": 0,
     "status": "created"
 }
@@ -230,8 +230,8 @@ transfer-encoding: chunked
         }
     },
     "point": 0,
-    "roomFloor": "4",
-    "roomName": "black"
+    "roomFloor": "5",
+    "roomName": "red"
 }
 
 
@@ -245,13 +245,13 @@ Date: Thu, 03 Sep 2020 00:50:52 GMT
 transfer-encoding: chunked
 
 {
-    "changeDtm": "20200902100001.09237449037",
+    "changeDtm": "20200903100001.09237449037",
     "id": 1,
     "point": 3,
     "status": "saved"
 }
 
-{"eventType":"PointSaved","timestamp":"20200903005457","id":1,"point":6,"status":"saved","changeDtm":"20200902100001.89862713129","me":true}
+{"eventType":"PointSaved","timestamp":"20200903005457","id":1,"point":3,"status":"saved","changeDtm":"20200903100001.89862713129","me":true}
 
 
 >http GET http://aa96a9baa39964102b0cbd52f5562218-266835466.ap-northeast-2.elb.amazonaws.com:8080/pointLists/1
@@ -269,9 +269,9 @@ transfer-encoding: chunked
             "href": "http://pointList:8080/pointLists/1"
         }
     },
-    "point": 9,
-    "roomFloor": "4",
-    "roomName": "black"
+    "point": 3,
+    "roomFloor": "5",
+    "roomName": "red"
 }
 
 ```
@@ -282,8 +282,8 @@ transfer-encoding: chunked
 HTTP/1.1 204 No Content
 Date: Thu, 03 Sep 2020 00:52:32 GMT
 
-{"eventType":"RoomDeleted","timestamp":"20200903005232","id":1,"name":"brown","floor":"100","me":true}
-{"eventType":"PointDeleted","timestamp":"20200903005232","id":1,"point":3,"status":"cancelled","changeDtm":"20200902100001.09237449037","me":true}
+{"eventType":"RoomDeleted","timestamp":"20200903005232","id":1,"name":"red","floor":"5","me":true}
+{"eventType":"PointDeleted","timestamp":"20200903005232","id":1,"point":3,"status":"cancelled","changeDtm":"20200903100001.09237449037","me":true}
 ```
 
 ## 동기식 호출 과 비동기식 
