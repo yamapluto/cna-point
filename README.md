@@ -254,6 +254,28 @@ transfer-encoding: chunked
 }
 
 {"eventType":"PointSaved","timestamp":"20200903005457","id":1,"point":6,"status":"saved","changeDtm":"20200902100001.89862713129","me":true}
+
+
+>http GET http://aa96a9baa39964102b0cbd52f5562218-266835466.ap-northeast-2.elb.amazonaws.com:8080/pointLists/1
+HTTP/1.1 200 OK
+Content-Type: application/hal+json;charset=UTF-8
+Date: Thu, 03 Sep 2020 01:49:32 GMT
+transfer-encoding: chunked
+
+{
+    "_links": {
+        "pointList": {
+            "href": "http://pointList:8080/pointLists/1"
+        },
+        "self": {
+            "href": "http://pointList:8080/pointLists/1"
+        }
+    },
+    "point": 9,
+    "roomFloor": "4",
+    "roomName": "black"
+}
+
 ```
 
 * [room] room정보 삭제
